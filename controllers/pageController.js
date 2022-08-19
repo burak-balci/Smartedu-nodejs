@@ -31,7 +31,8 @@ exports.getContactPage = (req, res) => {
 };
 
 exports.sendEmail = async (req, res) => {
-  const outputMessage = `
+  try {
+    const outputMessage = `
   <h1>Mail Details</h1>
   <ul>
   <li>Name: ${req.body.name}</li>
@@ -40,28 +41,34 @@ exports.sendEmail = async (req, res) => {
   <h1>Message</h1>
   <p>${req.body.message}</p>
   `;
-  let transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true, // true for 465, false for other ports
-    auth: {
-      user: "burakb199726@gmail.com", // generated ethereal user
-      pass: "ffgqkrzsfjusbtzz", // generated ethereal password
-    },
-  });
+    let transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true, // true for 465, false for other ports
+      auth: {
+        user: "burakb199726@gmail.com", // generated ethereal user
+        pass: "ffgqkrzsfjusbtzz", // generated ethereal password
+      },
+    });
 
-  let info = await transporter.sendMail({
-    from: '"Smart EDU Contact Form" <burakb199726@gmail.com>', // sender address
-    to: "burakb199726@gmail.com", // list of receivers
-    subject: "Smart EDU Contact Form New Message", // Subject line
-    html: outputMessage,
-  });
+    let info = await transporter.sendMail({
+      from: '"Smart EDU Contact Form" <burakb199726@gmail.com>', // sender address
+      to: "burakb199726@gmail.com", // list of receivers
+      subject: "Smart EDU Contact Form New Message", // Subject line
+      html: outputMessage,
+    });
 
-  console.log("Message sent: %s", info.messageId);
-  // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+    console.log("Message sent: %s", info.messageId);
+    // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
 
-  // Preview only available when sending through an Ethereal account
-  console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+    // Preview only available when sending through an Ethereal account
+    console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
 
-  res.status(200).redirect("contact");
+    req.flash("success", "We Received your message successfuly");
+
+    res.status(200).redirect("contact");
+  } catch (err) {
+    req.flash("error", `Something happened! ${err}`);
+    res.status(200).redirect("contact");
+  }
 };

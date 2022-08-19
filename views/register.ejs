@@ -1,15 +1,24 @@
-<%- include('partials/_header.ejs') %> <%- include('partials/_navigation.ejs')
-%>
+<%- include('partials/_header'); %> <%- include('partials/_navigation'); %>
+
 <div class="container">
   <div class="section-title text-center">
     <h3 class="mt-5">REGISTER</h3>
-
     <div class="row">
       <div class="col-xl-12 col-md-12 col-sm-12">
         <div class="contact_form">
           <div id="message"></div>
-          <form method="post" action="users/signup">
+          <form method="POST" action="users/signup" novalidate>
             <div class="row row-fluid">
+              <div class="offset-1 col-lg-10 col-md-10 col-sm-10">
+                <% if (flashMessages) { %> <% if (flashMessages.success) { %>
+                <div class="alert alert-success">
+                  <%= flashMessages.success %>
+                </div>
+
+                <% } else if (flashMessages.error) { %>
+                <div class="alert alert-danger"><%= flashMessages.error %></div>
+                <% } %> <% } %>
+              </div>
               <div class="offset-1 col-lg-10 col-md-10 col-sm-10">
                 <input
                   type="text"
@@ -30,8 +39,8 @@
               </div>
               <div class="offset-1 col-lg-10 col-md-10 col-sm-10">
                 <select class="form-control" name="role">
-                  <option value="student">student</option>
-                  <option value="teacher">teacher</option>
+                  <option>student</option>
+                  <option>teacher</option>
                 </select>
               </div>
               <div class="offset-1 col-lg-10 col-md-10 col-sm-10">
@@ -64,4 +73,5 @@
   <!-- end container -->
 </div>
 <!-- end container -->
-<%- include('partials/_footer.ejs') %>
+
+<%- include('partials/_footer'); %>

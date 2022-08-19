@@ -10,10 +10,11 @@ exports.createCourse = async (req, res) => {
       category: req.body.category,
       user: req.session.userID,
     });
+
     req.flash("success", `${course.name} has been created successfully`);
     res.status(201).redirect("/courses");
   } catch (error) {
-    req.flash("error", "Something happened!");
+    req.flash("error", `Something happened!`);
     res.status(400).redirect("/courses");
   }
 };
@@ -22,7 +23,9 @@ exports.getAllCourses = async (req, res) => {
   try {
     const categorySlug = req.query.categories;
     const query = req.query.search;
+
     const category = await Category.findOne({ slug: categorySlug });
+
     let filter = {};
 
     if (categorySlug) {
@@ -34,18 +37,13 @@ exports.getAllCourses = async (req, res) => {
     }
 
     if (!query && !categorySlug) {
-      filter.name = "";
-      filter.category = null;
+      (filter.name = ""), (filter.category = null);
     }
 
     const courses = await Course.find({
       $or: [
-        {
-          name: { $regex: ".*" + filter.name + ".*", $options: "i" },
-        },
-        {
-          category: filter.category,
-        },
+        { name: { $regex: ".*" + filter.name + ".*", $options: "i" } },
+        { category: filter.category },
       ],
     })
       .sort("-createdAt")
@@ -91,6 +89,7 @@ exports.enrollCourse = async (req, res) => {
     const user = await User.findById(req.session.userID);
     await user.courses.push({ _id: req.body.course_id });
     await user.save();
+
     res.status(200).redirect("/users/dashboard");
   } catch (error) {
     res.status(400).json({
@@ -105,6 +104,22 @@ exports.releaseCourse = async (req, res) => {
     const user = await User.findById(req.session.userID);
     await user.courses.pull({ _id: req.body.course_id });
     await user.save();
+
+    res.status(200).redirect("/users/dashboard");
+  } catch (error) {
+    res.status(400).json({
+      status: "fail",
+      error,
+    });
+  }
+};
+
+exports.deleteCourse = async (req, res) => {
+  try {
+    const course = await Course.findOneAndRemove({ slug: req.params.slug });
+
+    req.flash("error", `${course.name} has been removed successfully`);
+
     res.status(200).redirect("/users/dashboard");
   } catch (error) {
     res.status(400).json({
